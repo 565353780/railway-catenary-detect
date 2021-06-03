@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+	<meta charset="utf-8">
+</head>
+
+<body style="height: 100%; margin: 0">
+	<div id="container" style="height: 100%"></div>
+	<script type="text/javascript" src="./echarts.js"></script>
+	<script type="text/javascript">
+		let dom = document.getElementById("container");
+		let myChart = echarts.init(dom);
+		let option = null;
+		let dataAxis = [];
+		let data = [];
+		let hasDataFlag = false;
+
+		function setOption() {
+			option = {
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'shadow'
+					}
+				},
+				xAxis: {
+					data: dataAxis,
+					type: 'category',
+					axisLabel: {
+						interval: 0,
+						rotate: 40
+					},
+					axisLine: {
+						show: hasDataFlag
+					},
+					axisTick: {
+						show: hasDataFlag
+					}
+				},
+				yAxis: [
+					{
+						type: 'value',
+						name: hasDataFlag ? 'Quantity' : '',
+						axisLine: {
+							show: hasDataFlag
+						},
+						axisTick: {
+							show: hasDataFlag
+						},
+						axisLabel: {
+							formatter: '{value}'
+						}
+					}
+				],
+				dataZoom: [
+					{
+						type: 'inside'
+					}
+				],
+				series: [
+					{
+						type: 'bar',
+						itemStyle: {
+							color: 'rgba(0,0,0,0.05)'
+						},
+						barGap: '-100%',
+						barCategoryGap: '40%',
+						animation: false
+					},
+					{
+						type: 'bar',
+						itemStyle: {
+							color: new echarts.graphic.LinearGradient(
+								0, 0, 0, 1,
+								[
+									{ offset: 0, color: '#83bff6' },
+									{ offset: 0.5, color: '#188df0' },
+									{ offset: 1, color: '#188df0' }
+								]
+							)
+						},
+						emphasis: {
+							itemStyle: {
+								color: new echarts.graphic.LinearGradient(
+									0, 0, 0, 1,
+									[
+										{ offset: 0, color: '#2378f7' },
+										{ offset: 0.7, color: '#2378f7' },
+										{ offset: 1, color: '#83bff6' }
+									]
+								)
+							}
+						},
+						data: data
+					}
+				]
+			};
+		}
+
+		function setData(dataArray, textArray) {
+			textArray = String(textArray).split(",");
+			dataArray = String(dataArray).split(",");
+
+			for (let i in dataArray) {
+				dataArray[i] = parseInt(dataArray[i])
+			}
+			if (textArray.length === dataArray.length) {
+
+				if (textArray.length > 0) {
+					hasDataFlag = true;
+				} else {
+					hasDataFlag = false;
+				}
+
+				data = dataArray;
+				dataAxis = textArray;
+				setOption();
+				myChart.setOption(option);
+
+			}
+		}
+
+		function resetSize(width, height) {
+			dom.style.width = width + 'px';
+			dom.style.height = height + 'px';
+			return [dom.style.width, dom.style.height];
+		}
+
+		setOption();
+
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+
+		// Enable data zoom when user click bar.
+		let zoomSize = 6;
+		// 注册myChart的click事件
+		myChart.on('click', function (params) {
+			myChart.dispatchAction({
+				type: 'dataZoom',
+				startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+				endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, data.length - 1)]
+			});
+		});
+
+	</script>
+</body>
+</html>

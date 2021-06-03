@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+	<meta charset="utf-8">
+</head>
+
+<body style="height: 100%; margin: 0">
+	<div id="container" style="height: 100%; " ></div>
+	<script type="text/javascript" src="./echarts.js"></script>
+	<script type="text/javascript">
+		let dom = document.getElementById("container");
+		let myChart = echarts.init(dom);
+		let option = null;
+		let dataAxis = [];
+		let corlorData = [];
+		let legendData = [];
+		let xAxisData = [];
+		let seriesData = [];
+		let hasDataFlag = false;
+
+		function setOption() {
+			option = {
+				color: corlorData,
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'shadow'
+					}
+				},
+				legend: {
+					data: legendData
+				},
+				xAxis: [
+					{
+						type: 'category',
+						axisLabel: {
+							interval: 0,
+							rotate: 40
+						},
+						axisLine: {
+							show: hasDataFlag
+						},
+						axisTick: {
+							show: hasDataFlag
+						},
+						data: xAxisData
+					}
+				],
+				yAxis: [
+					{
+						type: 'value',
+						name: hasDataFlag ? 'Quantity' : '',
+						axisLine: {
+							show: hasDataFlag
+						},
+						axisTick: {
+							show: hasDataFlag
+						},
+						axisLabel: {
+							formatter: '{value}'
+						}
+					}
+					//, {
+					// 	type: 'value',
+					// 	name: 'Misjudge Rate (ppm)',
+					// 	axisLine: {
+					// 		show: hasDataFlag
+					// 	},
+					// 	axisTick: {
+					// 		show: hasDataFlag
+					// 	},
+					// 	axisLabel: {
+					// 		formatter: '{value}'
+					// 	}
+					// }
+				],
+				dataZoom: [
+					{
+						type: 'inside'
+					}
+				],
+				series: seriesData
+			};
+		}
+
+		function setData(textAITitle, textAIValue, textAOIValue, textLegend, textColor) {
+
+			xAxisData = String(textAITitle).split(","); // x轴坐标 title
+			legendData = String(textLegend).split(",");
+			corlorData = String(textColor).split(",");
+
+			let arrayAIValueStr = String(textAIValue).split(","); // 字符值
+			let arrayAOIValueStr = String(textAOIValue).split(",");
+			let arrayAIValue = []; // int
+			let arrayAOIValue = [];
+			let seriesDatas = [];
+
+			for (let i in arrayAIValueStr) {
+				arrayAIValue.push(parseInt(arrayAIValueStr[i]));
+			}
+			seriesDatas.push(arrayAIValue);
+			for (let j in arrayAOIValueStr) {
+				arrayAOIValue.push(parseInt(arrayAOIValueStr[j]));
+			}
+			seriesDatas.push(arrayAOIValue);
+
+			if (xAxisData.length === arrayAIValue.length) {
+
+				if (xAxisData.length > 0) {
+					hasDataFlag = true;
+				} else {
+					hasDataFlag = false;
+				}
+				dataAxis = xAxisData;
+
+				seriesData = []; // 先清空
+				for (let k in legendData) {
+					seriesData.push({
+						name: legendData[k],
+						type: 'bar',
+						barGap: 0,
+						data: seriesDatas[k]
+					});
+				}
+
+				setOption();
+				myChart.setOption(option);
+			}
+		}
+
+		function resetSize(width, height) {
+			dom.style.width = width + 'px';
+			dom.style.height = height + 'px';
+			return [dom.style.width, dom.style.height];
+		}
+
+		setOption();
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+
+		// Enable data zoom when user click bar.
+		let zoomSize = 6;
+		myChart.on('click', function (params) {
+			myChart.dispatchAction({
+				type: 'dataZoom',
+				startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+				endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, dataAxis.length - 1)]
+			});
+		});
+
+	</script>
+</body>
+</html>

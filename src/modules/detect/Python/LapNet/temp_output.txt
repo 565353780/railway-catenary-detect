@@ -1,0 +1,32 @@
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found1GPU(s).Using GPU(s) form idx:0
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+filename:LapNet_chkpt_better_epoch17274_GPU0.pth
+Found Checkpoint fileE:\chLi\FilterSocket1\bin_win/../src/Python/LapNet/trained_model/LapNet_chkpt_better_epoch17274_GPU0.pth.
+The checkpoint was saved at epoch17274.
+Training stats is reset form epoch17274

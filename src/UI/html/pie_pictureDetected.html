@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+	<meta charset="utf-8">
+</head>
+
+<body style="height: 100%; margin: 0">
+	<div id="container" style="height: 100%"></div>
+	<script type="text/javascript" src="./echarts.js"></script>
+	<script type="text/javascript">
+		let dom = document.getElementById("container");
+		let myChart = echarts.init(dom);
+		let option = null;
+		let data = [];
+		let totalNum = 0;
+		let hasData = false;
+
+		function setOption() {
+			option = {
+				title: {
+					text: hasData ? '图片检视率' : '',
+					left: 'center'
+				},
+				tooltip: {
+					trigger: 'item',
+					formatter: '{a} : ' + totalNum +'<br/>{b} : {c} ({d}%)'
+				},
+				series: [
+					{
+						name: '总计',
+						type: 'pie',
+						radius: '55%',
+						center: ['50%', '50%'],
+						data: data,
+						emphasis: {
+							itemStyle: {
+								shadowBlur: 10,
+								shadowOffsetX: 0,
+								shadowColor: 'rgba(0, 0, 0, 0.6)'
+							}
+						}
+					}
+				]
+			};
+		}
+
+		function setData(pictureUndetectedNumText, pictureDetectedNumText) {
+			
+			let undetectedNum = parseInt(pictureUndetectedNumText);
+			let detectedNum = parseInt(pictureDetectedNumText);
+
+			totalNum = detectedNum + undetectedNum;
+			if (totalNum > 0) {
+				data = [];
+				data.push({
+						value: undetectedNum,
+						name: '漏检'
+					},
+					{
+						value: detectedNum,
+						name: '已检'
+					}
+				);
+				hasData = true;
+				setOption();
+				myChart.setOption(option);
+			} else {
+				hasData = false;
+			}
+		}
+
+		function resetSize(width, height) {
+			dom.style.width = width + 'px';
+			dom.style.height = height + 'px';
+			return [dom.style.width, dom.style.height];
+		}
+
+		setOption();
+
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+	</script>
+</body>
+
+</html>

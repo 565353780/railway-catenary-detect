@@ -1,0 +1,33 @@
+{
+    "Area": {
+        "category": "",
+        "color": {
+            "b": 255,
+            "g": 0,
+            "r": 0
+        },
+		"color1": {
+            "b": 0,
+            "g": 0,
+            "r": 255
+        },
+		"labels": [
+		],
+		"labelDict":[
+			{
+				"name": "cross_type",
+				"ui_name": "label",
+				"options": [
+					["0", "鸟窝"],
+					["1", "鸟"]
+				],
+				"default":"0"
+			}
+			
+		],
+        "polygons": [
+        ],
+        "type": "bbox",
+        "ui_name": "区域"
+    }
+}

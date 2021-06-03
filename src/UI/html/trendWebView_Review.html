@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+
+<head>
+	<meta charset="utf-8">
+</head>
+
+<body style="height: 100%; margin: 0">
+	<div id="container" style="height: 100%"></div>
+	<script type="text/javascript" src="./echarts.js"></script>
+	<script type="text/javascript">
+		let dom = document.getElementById("container");
+		let myChart = echarts.init(dom);
+		let option = null;
+		let xAxisData = [];
+		let serieData = [];
+		let colorData = [];
+		let hasDataFlag = false;
+
+		function setOption() {
+			option = {
+				color: colorData,
+				tooltip: {
+					trigger: 'axis',
+					axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+						type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+					}
+				},
+				xAxis: [
+					{
+						type: 'category',
+						axisLabel: {
+							interval: 0,
+							rotate: 40
+						},
+						axisLine: {
+							show: hasDataFlag
+						},
+						axisTick: {
+							show: hasDataFlag
+						},
+						data: xAxisData
+					}
+				],
+				yAxis: [
+					{
+						type: 'value',
+						name: hasDataFlag ? 'BadRate (ppm)' : '',
+						axisLine: {
+							show: hasDataFlag
+						},
+						axisTick: {
+							show: hasDataFlag
+						},
+						axisLabel: {
+							formatter: '{value}'
+						}
+					}
+				],
+				dataZoom: [
+					{
+						type: 'inside'
+					}
+				],
+				series: [
+					{
+						name: 'BadRate',
+						type: 'bar',
+						barWidth: '55%',
+						data: serieData
+					},
+					{
+						name: 'Line Trend',
+						type: 'line',
+						symbol: 'none',
+						itemStyle: {
+							normal: {
+								color: '#99ff99'
+							}
+						},
+						data: serieData
+					}
+				]
+			};
+		}
+
+		function setData(textReviewTitle, textReviewValue, textColor) {
+
+			xAxisData = String(textReviewTitle).split(","); // x轴坐标 title
+			colorData = String(textColor).split(",");
+
+			let arrayReviewValueStr = String(textReviewValue).split(","); // 字符值
+			serieData = []; // float
+			for (let i in arrayReviewValueStr) {
+				serieData.push(parseFloat(arrayReviewValueStr[i]));
+			}
+
+			if (xAxisData.length === serieData.length) {
+
+				if (xAxisData.length > 0) {
+					hasDataFlag = true;
+				} else {
+					hasDataFlag = false;
+				}
+				dataAxis = xAxisData;
+
+				setOption();
+				myChart.setOption(option);
+			}
+		}
+
+		function resetSize(width, height) {
+			dom.style.width = width + 'px';
+			dom.style.height = height + 'px';
+			return [dom.style.width, dom.style.height];
+		}
+
+		setOption();
+		if (option && typeof option === "object") {
+			myChart.setOption(option, true);
+		}
+
+		// Enable data zoom when user click bar.
+		let zoomSize = 6;
+		myChart.on('click', function (params) {
+			myChart.dispatchAction({
+				type: 'dataZoom',
+				startValue: dataAxis[Math.max(params.dataIndex - zoomSize / 2, 0)],
+				endValue: dataAxis[Math.min(params.dataIndex + zoomSize / 2, dataAxis.length - 1)]
+			});
+		});
+
+	</script>
+</body>
+
+</html>

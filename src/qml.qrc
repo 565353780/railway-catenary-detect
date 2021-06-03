@@ -1,0 +1,25 @@
+<RCC>
+    <qresource prefix="/">
+        <file>UI/AOIInfoDisplayBlock.qml</file>
+        <file>UI/AOIInfoDisplayGrid.qml</file>
+        <file>UI/CustomedImageCanvas.qml</file>
+        <file>UI/CustomedTableview.qml</file>
+        <file>UI/ImageCanvasTest.qml</file>
+        <file>UI/PagePredict.qml</file>
+        <file>UI/PageReview.qml</file>
+        <file>UI/PageStatistics.qml</file>
+        <file>UI/railway-detect.qml</file>
+        <file>UI/resource/firstImage.png</file>
+        <file>UI/resource/lastImage.png</file>
+        <file>UI/resource/machine.png</file>
+        <file>UI/resource/machine.svg</file>
+        <file>UI/resource/minus.png</file>
+        <file>UI/resource/next.png</file>
+        <file>UI/resource/plus.png</file>
+        <file>UI/resource/prev.png</file>
+        <file>UI/resource/white.jpg</file>
+        <file>UI/html/countWebView_AI.html</file>
+        <file>UI/html/echarts.js</file>
+        <file>railway-catenary-detect.qm</file>
+    </qresource>
+</RCC>
