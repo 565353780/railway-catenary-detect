@@ -412,6 +412,7 @@ void DatabaseManager::getQueryResult(QSqlQueryModel& model, QJsonObject query_ob
 
     model.setQuery(command, database_);
 
-    if (model.lastError().isValid()) qDebug() << "get result fail:" << model.lastError();
+    if (model.lastError().isValid())
+        qDebug() << "get result fail:" << model.lastError();
 }
 

@@ -31,6 +31,8 @@
 #include <string.h>
 #endif
 
+#include "services/HttpApi/HttpApi.h"
+
 struct Info
 {
     int img_width_{0};
@@ -127,6 +129,13 @@ private:
     QJsonObject empty_output_Obj;
 
     QStringList label_list_;
+    QDir        dir_;
+
+    GCL::HttpApi* http_api_;
+
+    int current_img_idx_ = 0;
+
+    bool use_resnet_ = false;
 };
 
 #endif // DETECTSERVER_H

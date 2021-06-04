@@ -6,7 +6,8 @@
 </head>
 
 <body style="height: 100%; margin: 0">
-	<div id="container" style="height: 100%"></div>
+	<div id="container" style="height: 100%;"></div>
+
 	<script type="text/javascript" src="./echarts.js"></script>
 	<script type="text/javascript">
 		let dom = document.getElementById("container");
@@ -19,25 +20,33 @@
 		function setOption() {
 			option = {
 				title: {
-					text: hasData ? '图片检视率' : '',
+					text: hasData ? '图片检测状况' : '',
 					left: 'center'
 				},
 				tooltip: {
 					trigger: 'item',
 					formatter: '{a} : ' + totalNum +'<br/>{b} : {c} ({d}%)'
 				},
+				visualMap: {
+					show: false,
+					min: 0,
+					max: 1000,
+					inRange: {
+						colorLightness: [0.5, 1]
+					}
+				},
 				series: [
 					{
 						name: '总计',
 						type: 'pie',
-						radius: '55%',
-						center: ['50%', '50%'],
+						radius: '65%',
+						center: ['50%', '55%'],
 						data: data,
 						emphasis: {
 							itemStyle: {
 								shadowBlur: 10,
 								shadowOffsetX: 0,
-								shadowColor: 'rgba(0, 0, 0, 0.6)'
+								shadowColor: 'rgba(0, 0, 0, 1)'
 							}
 						}
 					}
@@ -55,11 +64,11 @@
 				data = [];
 				data.push({
 						value: undetectedNum,
-						name: '漏检'
+						name: '异常'
 					},
 					{
 						value: detectedNum,
-						name: '已检'
+						name: '正常'
 					}
 				);
 				hasData = true;
@@ -73,6 +82,7 @@
 		function resetSize(width, height) {
 			dom.style.width = width + 'px';
 			dom.style.height = height + 'px';
+			myChart.resize();
 			return [dom.style.width, dom.style.height];
 		}
 

@@ -29,5 +29,8 @@
         ],
         "type": "bbox",
         "ui_name": "区域"
+    },
+    "StatisticsFilter": {
+        "BoardName": "基板型号"
     }
 }

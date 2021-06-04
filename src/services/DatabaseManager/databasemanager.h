@@ -170,7 +170,7 @@ public:
 
     /**
      * @brief queryRecordInTable    若输入的QSqlTableModel数据库为当前数据库，把查询的数据加载到sqltable model内
-     * @param table_mtestodel       输入的QSqlTableModel
+     * @param table_model       输入的QSqlTableModel
      * @param filter_str            查询字符串
      * @return 查询是否成功
      */

@@ -67,12 +67,7 @@ HEADERS += \
     modules/dataLoader/reviewjsondataloader.h \
     modules/maincontroller.h
 
-DISTFILES += \
-    UI/html/echarts.js \
-    UI/html/countWebView_AI.html \
-    UI/html/countWebView_Review.html \
-    UI/html/trendWebView_AI.html \
-    UI/html/trendWebView_Review.html
+
 
 #===========================
 #====start detect module====

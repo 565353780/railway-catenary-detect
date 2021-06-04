@@ -30,6 +30,6 @@ void ObjectDetect::slotDetectQueue()
 
 void ObjectDetect::slotPushOutput(QJsonObject result_obj)
 {
-//    qDebug() <<"result:"<< result_obj;
+    qDebug() <<"result:"<< result_obj;
     emit signalReceiveResult(result_obj);
 }

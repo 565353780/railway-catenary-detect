@@ -1,8 +1,19 @@
 import QtQuick 2.7
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 
 TableView {
+//    property color background_color_0: Qt.rgba(0,0,0,0)
+//    property color background_color_1: "#7f95e6"
+//    property color background_color_2: "#94a6ea"
+//    property color text_color: "#FFFFFF"
+//    property color border_color: "#3BBEE3"
+    property color header_color: Qt.rgba(0.1,0.3,0.8,0.9);
+    property color cell_color: Qt.rgba(0.1,0.3,0.9,0.4);
+    property color cell_hovered_color: Qt.rgba(0.9,0.3,0.9,0.4);
+
     id: tableview
+    property int cellHandlerFlag: 0
     property var holdMenuModelDataArray: null
     backgroundVisible: false;
     frameVisible: false;
@@ -11,27 +22,31 @@ TableView {
     rowDelegate: row
     model: ListModel{}
 
+//    style: {
+//        color:Qt.rgba(0,0,0,0)
+//    }
+
     // 定义表头的委托
     Component {
         id: header
         Rectangle {
-            id: headerRect;
-            height: 40;
+            id: headerRect
+            height: 40
             width: 80
-            border.color: "white";
-            color: (styleData.value.length > 0) ? "#c3fafb" : "transparent"
-            radius: 3;
-            Text {
-                id:textHeader
-                z:1
-                text: "<a href=\" " +String(styleData.row)+","+String(styleData.column)+"\">"+String(styleData.value)+String(styleData.column)+ "f</a>."
-                anchors.centerIn: parent
-                font.family: "微软雅黑";
-                font.pixelSize: 16;
-                color: "black";
-                onLinkActivated: console.log(link + " link activated")
+            border.color: border_color
+            color: header_color
+            radius: 3
 
+            Text {
+                text: String(styleData.value)
+                font.family: "微软雅黑"
+                font.pixelSize: 12
+                anchors.centerIn: parent
+                color: text_color
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
             }
+
 
         }
     }
@@ -42,26 +57,60 @@ TableView {
             id: tableCell
             anchors.fill: parent;
             anchors.margins: 3;
-            border.color: "blue";
+            border.color: border_color;
             radius: 3;
-            color: (styleData.column === 0) ?  Qt.rgba(1,0.99,0.55,1): "transparent";
-            height:42
+            color: cell_color
+
+            width: 80
+            height:40
             Text {
-                id: textID;
-                text: String(styleData.value) ;
-                font.family: "微软雅黑";
-                font.pixelSize: 12;
-                // font.underline: (styleData.column===tableview.columnCount-1)
-                anchors.fill: parent;
-                color: "black";
-                // elide: Text.ElideRight;
+                text: String(styleData.value)
+                font.family: "微软雅黑"
+                font.pixelSize: 12
+                anchors.centerIn: parent
+                color: text_color
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
-                font.underline: true;
+            }
+            MouseArea{
+                anchors.fill: parent
+                hoverEnabled: true;
+                onEntered:  {
+                    tableCell.color=cell_hovered_color;
+                }
+                onExited: {
+                    tableCell.color=cell_color;
 
+                }
+                onPressed: {
+                    if (cellHandlerFlag == 1) {
+                        cellHandler(styleData.value, styleData.row, styleData.column)
+                    }
+                }
             }
 
+            /*
+            Button {
+                width: 80
+                height:40
 
+
+                style:ButtonStyle{
+                    background:Rectangle{
+                        anchors.fill: parent;
+                        color: background_color_2;
+                    }
+                }
+
+                onClicked: {
+                    print("cell = ")
+                    print("row = ", styleData.row)
+                    print("column = ", styleData.column)
+                    print("value = ", styleData.value)
+                }
+
+            }
+            */
         }
     }
 
@@ -71,7 +120,7 @@ TableView {
         Rectangle {
             id: rect;
             height: 42;
-            color: "transparent";
+            color: styleData.selected?Qt.rgba(1,0.1,0.1,0.4):background_color_0
         }
     }
 
@@ -87,20 +136,14 @@ TableView {
     function initColumns(column_config) {
         var col_count = tableview.columnCount;
         for (var i = 0; i < col_count; i++) {
-            tableview.removeColumn(0);
+            tableview.removeColumn(i);
         }
-        var prefix = "import QtQuick 2.7;import QtQuick.Controls 1.4;TableViewColumn {width: (tableview.width-20)/"; //创建TableViewColumn的代码
+        var prefix = "import QtQuick 2.7;import QtQuick.Controls 1.4;TableViewColumn {width: tableview.width/"; //创建TableViewColumn的代码
 
         // 循环添加TableViewColumn
-        var totalWidth = 0;
         for (i = 0; i < column_config.length; i++) {
             var str = prefix + String(column_config.length) + ";role:\"" + column_config[i]["role"] + "\";title:\"" +  column_config[i]["title"] + "\"}";
-            var curCol = tableview.addColumn(Qt.createQmlObject(str, tableview, "dynamicSnippet1"));
+            tableview.addColumn(Qt.createQmlObject(str, tableview, "dynamicSnippet1"));
         }
-
-    }
-
-    function linkClicked(link){
-        print(link);
     }
 }

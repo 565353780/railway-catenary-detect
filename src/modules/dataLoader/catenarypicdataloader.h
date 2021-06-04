@@ -1,7 +1,9 @@
 #ifndef CATENARYPICDATALOADER_H
 #define CATENARYPICDATALOADER_H
-
 #include <QObject>
+
+#include "modules/dataLoader/reviewjsondataloader.h"
+
 class RailwayCatenaryDataManager;
 class CatenaryPicDataLoader : public QObject
 {
@@ -12,6 +14,8 @@ public:
     ~CatenaryPicDataLoader();
 private:
     RailwayCatenaryDataManager *database_manager_;
+
+    ReviewJsonDataLoader *review_json_dataloader_;
 
 signals:
 

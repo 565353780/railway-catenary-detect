@@ -8,10 +8,12 @@ SqlRecordCountTableModel::SqlRecordCountTableModel(QObject *parent)
 
 QVariant SqlRecordCountTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(orientation==Qt::Horizontal)
-        return column_header_roles_[section];
-    else {
-        return row_header_roles_[section];
+    if(role==Qt::DisplayRole){
+        if(orientation==Qt::Horizontal)
+            return column_header_roles_[section];
+        else {
+            return row_header_roles_[section];
+        }
     }
 }
 
@@ -49,13 +51,12 @@ int SqlRecordCountTableModel::getKey(int role) const
 
 QHash<int, QByteArray> SqlRecordCountTableModel::roleNames() const
 {
-    QHash<int, QByteArray> role_names;
+    QHash<int, QByteArray> role_names=QAbstractItemModel::roleNames() ;
     int colNum=column_header_roles_.size();
     for(int j=0; j<colNum; ++j){
         QString value=column_header_roles_.at(j);
         role_names[j+Qt::UserRole+1]=value.toLocal8Bit();
     }
-//    qDebug()<<role_names;
     return role_names;
 }
 
@@ -67,16 +68,22 @@ QVariant SqlRecordCountTableModel::getData(int row, int column)
 QVariant SqlRecordCountTableModel::data(const QModelIndex &index, int role) const
 {
 
-
-    if (!index.isValid())
-        return QVariant(0);
-    int row=index.row(), col=role>Qt::UserRole?role-Qt::UserRole-1:index.column();
-    //    qDebug()<<"row,col,role"<<index.row()<<index.column()<<role;
-    if(row>= row_header_roles_.size() || col>=column_header_roles_.size())
-        return QVariant(0);
-    else{
-        return data_[row][col];
+    QVariant value;
+    int row,col;
+    if (index.isValid()){
+        row=index.row();
+        col=index.column();
+        if(role>Qt::UserRole){
+            col=role-Qt::UserRole-1;
+        }
+        if(row>= row_header_roles_.size() || col>=column_header_roles_.size())
+            value= QVariant();
+        else{
+            value= data_[row][col];
+        }
     }
+    qDebug()<<"row,col,role,value"<<row<<col<<role<<value;
+    return value;
 
 }
 

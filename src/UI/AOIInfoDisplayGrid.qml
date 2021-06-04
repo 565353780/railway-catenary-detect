@@ -1,6 +1,7 @@
 import QtQuick.Controls 2.4
 import QtQuick 2.4
 ScrollView{
+    property var background_color_0: Qt.rgba(0,0,0,0)//"#132463"
     id:scroll;
     clip: true;
     contentWidth: width
@@ -9,10 +10,8 @@ ScrollView{
     ScrollBar.vertical.policy: ScrollBar.AlwaysOn
 
     Grid{
-
-        //bottomPadding: 10
         id: gridInfo
-        width: parent.width
+        width: parent.width - 80
         columns: width/200
         height: Math.ceil(repeaterAOIInformation.count / gridInfo.columns) * 70
         spacing: 10
@@ -21,7 +20,8 @@ ScrollView{
             model:[]
             Rectangle{
                 width: parent.width/gridInfo.columns
-                height: 70
+                height: 60
+                color: background_color_0
                 AOIInfoDisplayBlock{
 
                 }
@@ -31,14 +31,10 @@ ScrollView{
         /**
             model类型：jsonarray，每个元素包含 title,value,role三个属性
           */
-
-
     }
     function updateAOITitleValue(model)
     {
         repeaterAOIInformation.model = [];
-
-
         repeaterAOIInformation.model = model;
     }
 

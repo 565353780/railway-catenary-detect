@@ -12,12 +12,16 @@ Item {
         height: parent.height-50
         clip: true
         Rectangle{
+            color: "#000000"
             anchors.fill: parent
             Rectangle{
+                color: "#000000"
                 anchors.fill: parent
                 Canvas{
+
                     width: 300
                     height: 300
+
                     id:canvasMain
                     onImageLoaded: {
                         computeDrawImageParam();
@@ -27,6 +31,7 @@ Item {
                         ctx=getContext("2d");
                     }
                 }
+
             }
 
             Image{
@@ -130,7 +135,7 @@ Item {
 
     function clearCtx(){
         if(!ctx) {ctx=canvasMain.getContext("2d");print("no context available");return;}
-        ctx.fillStyle=Qt.rgba(1,1,1,1);
+        ctx.fillStyle=Qt.rgba(0,0,0,1);
         ctx.fillRect(0,0,canvasMain.canvasSize.width,canvasMain.canvasSize.height);
         canvasMain.requestPaint()
     }

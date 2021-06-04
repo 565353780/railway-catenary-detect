@@ -2,15 +2,35 @@
 
 DetectServerThread::DetectServerThread(QObject *parent)
 {
+    QString network_type = "4c";//chLi
+
+    QString class_num = "";
+    QString model_component = "detect";
+
+    if(network_type == "4c")
+    {
+        class_num = "32";
+        model_component = "jueyuanzi";
+    }
+    if(network_type == "2c")
+    {
+        class_num = "2";
+    }
+
     QString base_path = "/home/abaci/chLi/FilterSocket/Server_DataBase/train_dataset/darknet_dataset/";
 
     QString model_base_path = "/home/abaci/chLi/FilterSocket/Linux/darknet-master/backup/";
 
-    std::string yolov3_cfg = (base_path + "yolov3_test.cfg").toStdString();
+    std::string yolov3_cfg = (base_path + "yolov3_test_" + network_type + ".cfg").toStdString();
 
-    std::string yolov3_weights = (model_base_path + "yolov3_train.backup").toStdString();
+    std::string yolov3_weights = (model_base_path + "yolov3_train_" + network_type + "_" + model_component + "_" + class_num + "class.backup").toStdString();
 
-    std::string coco_cfg = (base_path + "coco.data").toStdString();
+    std::string coco_cfg = (base_path + "coco_" + network_type + ".data").toStdString();
+
+    if(network_type == "4c")
+    {
+        use_resnet_ = true;
+    }
 
 #ifdef Linux
     darknet_detector = new DarknetDetector(yolov3_cfg, yolov3_weights, coco_cfg);
@@ -18,27 +38,28 @@ DetectServerThread::DetectServerThread(QObject *parent)
 
     label_list_.clear();
 
-    QFile json_file("configs/2C_label_config.json");
+//    QFile json_file("configs/label_config.json");
+//    if(json_file.open(QFile::ReadOnly))
+//    {
+//        QByteArray json_array = json_file.readAll();
 
-    if(json_file.open(QFile::ReadOnly))
+//        json_file.close();
+
+//        QJsonDocument json_doc = QJsonDocument::fromJson(json_array);
+
+//        QJsonObject json_Obj = json_doc.object();
+
+//        QJsonArray label_array = json_Obj.value("Area").toObject().value("labelDict").toArray()[0].toObject().value("options").toArray();
+//    }
+
+    for(int i = 0; i < class_num.toInt(); ++i)
     {
-        QByteArray json_array = json_file.readAll();
-
-        json_file.close();
-
-        QJsonDocument json_doc = QJsonDocument::fromJson(json_array);
-
-        QJsonObject json_Obj = json_doc.object();
-
-        QJsonArray label_array = json_Obj.value("Area").toObject().value("labelDict").toArray()[0].toObject().value("options").toArray();
-
-        for(int i = 0; i < label_array.size(); ++i)
-        {
-            label_list_.append(label_array[i].toArray()[1].toString());
-        }
+        label_list_.append(QString::number(i));
     }
 
-    qDebug() << "init model finished!" << endl;
+    qDebug() << "init model finished!" <<label_list_;
+
+    http_api_ = new GCL::HttpApi(this);
 }
 
 DetectServerThread::~DetectServerThread()
@@ -218,7 +239,7 @@ std::vector<std::pair<char *, std::vector<float>>> DarknetDetector::getDarknetRe
 
 QJsonObject DetectServerThread::darknet_process(QJsonObject img_Obj)
 {
-    QString img_path = img_Obj["imagepath"].toString();
+    QString img_path = img_Obj["Imagepath"].toString();
 
     if(!dir_.exists(img_path))
     {
@@ -278,23 +299,103 @@ QJsonObject DetectServerThread::darknet_process(QJsonObject img_Obj)
 
     // process
 
-//    clock_t start = clock();
+    clock_t start = clock();
     std::vector<std::pair<char *, std::vector<float>>> result = darknet_detector->getDarknetResult(image, data.info.img_width_, data.info.img_height_, data.info.img_format_);
     delete(image);
-//    std::cout << int((clock() - start)/1000) << " ms" << std::endl;
+    std::cout << int((clock() - start)/1000) << " ms" << std::endl;
 
     QJsonArray detections_Array;
 
     for(int i=0; i < result.size(); i++)
     {
+        int label = int(result[i].second[5]);
+
+        if(use_resnet_)
+        {
+            if(label < 1 || label > 5)
+            {
+                continue;
+            }
+        }
+
+        float x1 = float(result[i].second[1] / data.info.img_width_);
+        float y1 = float(result[i].second[2] / data.info.img_height_);
+        float x2 = float((result[i].second[1] + result[i].second[3]) / data.info.img_width_);
+        float y2 = float((result[i].second[2] + result[i].second[4]) / data.info.img_height_);
+
         QJsonObject detection_Obj;
-        detection_Obj.insert("label", label_list_[int(result[i].second[5])]);
+
+        if(use_resnet_)
+        {
+            float expand_times = 0.4;
+
+            float new_x1 = fmax(0.0, x1 - expand_times * (x2 - x1));
+            float new_x2 = fmin(1.0, x2 + expand_times * (x2 - x1));
+            float new_y1 = fmax(0.0, y1 - expand_times * (y2 - y1));
+            float new_y2 = fmin(1.0, y2 + expand_times * (y2 - y1));
+
+            QJsonObject input_to_resnet_Obj;
+            input_to_resnet_Obj.insert("image_file", img_path);
+            input_to_resnet_Obj.insert("x1", new_x1);
+            input_to_resnet_Obj.insert("x2", new_x2);
+            input_to_resnet_Obj.insert("y1", new_y1);
+            input_to_resnet_Obj.insert("y2", new_y2);
+            input_to_resnet_Obj.insert("id", "0");
+
+            QImage img_save = img_in.copy(int(new_x1 * data.info.img_width_), int(new_y1 * data.info.img_height_), int((new_x2 - new_x1) * data.info.img_width_), int((new_y2 - new_y1) * data.info.img_height_));
+
+            if(!dir_.exists("./img_save/"))
+            {
+                dir_.mkpath("./img_save/");
+            }
+
+            img_save.save("./img_save/" + QString::number(current_img_idx_) + ".jpg");
+
+            ++current_img_idx_;
+
+            QJsonDocument doc_to_resnet = QJsonDocument(input_to_resnet_Obj);
+
+            QByteArray bytes_to_resnet = doc_to_resnet.toJson();
+
+            QJsonObject result_json = http_api_->post("http://0.0.0.0:2006/predict", bytes_to_resnet);
+
+            detection_Obj.insert("Label", result_json.value("result").toString().toInt());
+        }
+        else
+        {
+            detection_Obj.insert("Label", label_list_[int(result[i].second[5])].toInt());
+        }
+
         detection_Obj.insert("type", QString("bbox"));
-        detection_Obj.insert("x1", float(result[i].second[1] / data.info.img_width_));
-        detection_Obj.insert("x2", float(result[i].second[2] / data.info.img_width_));
-        detection_Obj.insert("y1", float((result[i].second[1] + result[i].second[3]) / data.info.img_width_));
-        detection_Obj.insert("y2", float((result[i].second[2] + result[i].second[4]) / data.info.img_width_));
+        detection_Obj.insert("x1", x1);
+        detection_Obj.insert("y1", y1);
+        detection_Obj.insert("x2", x2);
+        detection_Obj.insert("y2", y2);
         detection_Obj.insert("ID", QString::number(i));
+
+        QJsonArray polygon_array;
+
+        QJsonArray point1_array;
+        point1_array.append(x1);
+        point1_array.append(y1);
+        polygon_array.append(point1_array);
+
+        QJsonArray point2_array;
+        point2_array.append(x1);
+        point2_array.append(y2);
+        polygon_array.append(point2_array);
+
+        QJsonArray point3_array;
+        point3_array.append(x2);
+        point3_array.append(y2);
+        polygon_array.append(point3_array);
+
+        QJsonArray point4_array;
+        point4_array.append(x2);
+        point4_array.append(y1);
+        polygon_array.append(point4_array);
+
+        detection_Obj.insert("polygon", polygon_array);
 
         detections_Array.append(detection_Obj);
     }
@@ -312,7 +413,7 @@ QJsonObject DetectServerThread::darknet_test(QJsonObject img_Obj)
 {
     clock_t t_start = clock();
 
-    QString img_path = img_Obj.value("imagepath").toString();
+    QString img_path = img_Obj.value("Imagepath").toString();
 
     QDir dir_;
 
@@ -322,6 +423,7 @@ QJsonObject DetectServerThread::darknet_test(QJsonObject img_Obj)
         return empty_output_Obj;
     }
 
+    qDebug()<<"tmp_obj"<<img_Obj;
     QString PicID = img_Obj["PicID"].toString();
 
     QJsonArray detections_Array;
@@ -329,17 +431,46 @@ QJsonObject DetectServerThread::darknet_test(QJsonObject img_Obj)
     for(int i=0; i < rand()%10 + 1; i++)
     {
         QJsonObject detection_Obj;
-        detection_Obj.insert("label", label_list_[int(rand()%label_list_.size())]);
+        int index=int(rand()%label_list_.size());
+        detection_Obj.insert("Label", label_list_[index].toInt());
+        qDebug()<<"i,labeli"<<index<<label_list_[index];
         detection_Obj.insert("type", QString("bbox"));
-        float x_, y_;
 
-        x_ = (rand()%100 + 1) * 1.0 / 202.0;
-        y_ = (rand()%100 + 1) * 1.0 / 202.0;
-        detection_Obj.insert("x1", x_);
-        detection_Obj.insert("x2", y_);
-        detection_Obj.insert("y1", x_ + 0.3);
-        detection_Obj.insert("y2", y_ + 0.3);
+        float x1, y1, x2, y2;
+
+        x1 = (rand()%100 + 1) * 1.0 / 202.0;
+        y1 = (rand()%100 + 1) * 1.0 / 202.0;
+        x2 = x1 + 0.3;
+        y2 = y1 + 0.4;
+        detection_Obj.insert("x1", x1);
+        detection_Obj.insert("x2", x2);
+        detection_Obj.insert("y1", y1);
+        detection_Obj.insert("y2", y2);
         detection_Obj.insert("ID", QString::number(i));
+
+        QJsonArray polygon_array;
+
+        QJsonArray point1_array;
+        point1_array.append(x1);
+        point1_array.append(y1);
+        polygon_array.append(point1_array);
+
+        QJsonArray point2_array;
+        point2_array.append(x1);
+        point2_array.append(y2);
+        polygon_array.append(point2_array);
+
+        QJsonArray point3_array;
+        point3_array.append(x2);
+        point3_array.append(y2);
+        polygon_array.append(point3_array);
+
+        QJsonArray point4_array;
+        point4_array.append(x2);
+        point4_array.append(y1);
+        polygon_array.append(point4_array);
+
+        detection_Obj.insert("Polygon", polygon_array);
 
         detections_Array.append(detection_Obj);
     }
@@ -354,6 +485,7 @@ QJsonObject DetectServerThread::darknet_test(QJsonObject img_Obj)
         continue;
     }
 
+    qDebug()<<"finish run darknet test";
     return output_Obj;
 }
 

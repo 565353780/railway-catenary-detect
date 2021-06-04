@@ -8,9 +8,23 @@ import Qt.labs.platform 1.0
 import QtWebEngine 1.7
 
 Page {
+//    property var background_color_0: Qt.rgba(0,0,0,0)//"#132463"
+//    property var background_color_1: "#5472de"
+//    property var background_color_2: "#94a6ea"
+//    property var text_color: "#FFFFFF"
+//    property var border_color: Qt.rgba(21/255,66/255,93/255,1)//"#3BBEE3"
+//    property int default_border_width: 2
+    property int default_height_label_0: 60
+    property int default_height_label_1: 45
+
+    property var old_filter_combo_number: 0
+    property var hasInitTableLabel: 0
+
     id: pageStatistics
     width: 960
     height: 800
+
+    RectBackground0 {}
 
     // close calendar
     MouseArea {
@@ -22,218 +36,301 @@ Page {
         }
     }
 
-    Rectangle{
-        anchors.fill: parent
-        border.color: "gray"
-        border.width: 1
-    }
-
-    Row{
-        id:rowMain
-        anchors.fill: parent
+    Rectangle {
+        // 操作区域
+        z: 5
+        id: operateRectangle
+        anchors.top: parent.top
         anchors.topMargin: 1
+        anchors.left: parent.left
+        border.width: default_border_width
+        border.color: border_color
+        color: background_color_0
+        width: 200
+        height: parent.height
 
-        Page {
-            id: pageViewStatistics
-            width: parent.width - 200
-            height: parent.height
-
-            footer: TabBar {
-                id: tabbarfooter
-                currentIndex: swipeTableChart.currentIndex
-                TabButton {
-                    text: qsTr("Review-State")
-                    checkable: true
-                    background: Rectangle {
-                        border.color: "gray"
-                        color: (parent.hovered || parent.checked) ? "red" : "white"
-                        opacity: 0.1
-                        radius: 5
-                    }
-                    checked: true
-                }
-            }
+        Rectangle {
+            // 日期选择区域
+            z: 6
+            id: dateSelectArea
+            anchors.top: parent.top
+            anchors.left: parent.left
+            color: background_color_0
+            width: parent.width
+            height: 260
 
             Column {
-                anchors.fill: parent
+                z: 7
+                width: parent.width - 2
+                height: parent.height
 
-                SwipeView {
-                    id: swipeTableChart
-                    z: -1
-                    currentIndex: tabbarfooter.currentIndex
+                Rectangle {
                     width: parent.width
-                    height: parent.height
-
-                    // Review
-                    Page {
-                        z: -1
-                        // id: tabReview
-                        visible: swipeTableChart.currentIndex == 0
-                        Column {
-                            // id: columnChartReview
-                            anchors.fill: parent
-
-                            // Label Type Table
-                            CustomedTableview {
-                                id: tablelabel;
-                                width: parent.width
-                                height: 200
-                                Component.onCompleted: {
-                                    initTableLabelHeaderColumns()
-                                    updataTableLabel()
-                                }
-                            }
-
-                            // static mode
-                            Row {
-                                width: parent.width
-                                height: parent.height - tablelabel.height
-                                WebEngineView {
-                                    id: pieviewpicturedetectedstatic
-                                    height: parent.height
-                                    width: parent.width
-                                    visible: true
-                                    url: "file:///home/abaci/chLi/github/railway-catenary-detect/railway-catenary-detect/UI/html/pie_pictureDetected.html"
-                                    Component.onCompleted: {
-                                        updataPieViewPictureDectected()
-                                    }
-                                    onLoadingChanged: {
-                                        if (pieviewpicturedetectedstatic.loading == false) {
-                                            updataPieViewPictureDectected()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // right operate area
-        Rectangle{
-            id: rectOperate
-            width: 200
-            height: parent.height
-            color: "white"
-            Column {
-                id: columnOperate
-                z: 2
-                anchors.fill: parent
-                spacing: 10
-
-                Column {
-                    id: colSelect
-                    height: parent.height * 2 / 3
-                    width: parent.width
-                    spacing: 40
-                    bottomPadding: 40
-
-                    Label {
-                        text: qsTr("Date Interval")
-                        font.pixelSize: 20
-                        font.bold: true
+                    height: parent.height * 3 / 10
+                    color: background_color_0
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.topMargin: 1
+                        anchors.left: parent.left
+                        anchors.leftMargin: 1
                         width: parent.width
-                        height: 60
-                        padding: 20
-                        background: Rectangle {
-                            color: "#b1b3b5"
+                        height: default_height_label_0
+                        color: background_color_1
+                        Text {
+                            anchors.fill: parent
+                            text: qsTr("Date Interval")
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: text_color
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
                         }
                     }
-                    // 日期选择区，鼠标点击非挂历区，关闭挂历显示
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: parent.height * 3 / 10
+                    color: background_color_0
                     Button {
                         id: selectDate
-                        width: parent.width - 20
-                        text: qsTr("Begin ") + Qt.formatDate(calendarBegin.selectedDate, "yyyy-MM-dd");
+                        anchors.top: parent.top
+                        anchors.topMargin: 1
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        width: parent.width - 2 * anchors.leftMargin
+                        height: default_height_label_1
+                        contentItem: Text {
+                            id: beginbtn
+                            text: qsTr("End ") + Qt.formatDate(calendarEnd.selectedDate, "yyyy-MM-dd")
+                            color: text_color
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        background: Rectangle {
+                            color: background_color_2
+                        }
                         onClicked: function() {
                             calendarBegin.visible = true
                             calendarEnd.visible = false
                         }
                         Calendar {
                             id: calendarBegin
-                            z: 2
-                            x: 150
-                            y: 160
                             visible: false
-                            anchors.right: parent.left
+                            anchors.left: parent.right
+                            anchors.leftMargin: parent.anchors.leftMargin + 1
                             anchors.top: parent.top
                             selectedDate: new Date("2019/01/01");
                             onClicked: {
                                 visible = false;
-                                selectDate.text = qsTr("Begin ") + Qt.formatDate(calendarBegin.selectedDate, "yyyy-MM-dd");
+                                beginbtn.text = qsTr("Begin ") + Qt.formatDate(calendarBegin.selectedDate, "yyyy-MM-dd");
                                 updataData()
-                                //updateFilterCombobox();
+                                updateFilterCombobox();
                             }
                         }
                     }
 
+                }
+
+                Rectangle {
+                    z: 8
+                    width: parent.width
+                    height: parent.height * 4 / 10
+                    color: background_color_0
                     Button {
+                        z: 9
                         id: selectEndDate
-                        width: parent.width - 20
-                        text: qsTr("End ") + Qt.formatDate(calendarEnd.selectedDate, "yyyy-MM-dd");
+                        anchors.top: parent.top
+                        anchors.topMargin: 1
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        width: parent.width - 2 * anchors.leftMargin
+                        height: default_height_label_1
+                        contentItem: Text {
+                            id: endbtn
+                            text: qsTr("End ") + Qt.formatDate(calendarEnd.selectedDate, "yyyy-MM-dd")
+                            color: text_color
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                        background: Rectangle {
+                            color: background_color_2
+                        }
                         onClicked: function() {
                             calendarEnd.visible = true
                             calendarBegin.visible = false
                         }
                         Calendar {
                             id: calendarEnd
-                            z: 1
+                            z: 10
                             visible: false
-                            anchors.right: parent.left
+                            anchors.left: parent.right
+                            anchors.leftMargin: parent.anchors.leftMargin + 1
                             anchors.top: parent.top
                             selectedDate: new Date()
                             onClicked: {
                                 visible = false;
-                                selectEndDate.text = qsTr("End ") + Qt.formatDate(calendarEnd.selectedDate, "yyyy-MM-dd");
+                                endbtn.text = qsTr("End ") + Qt.formatDate(calendarEnd.selectedDate, "yyyy-MM-dd");
                                 updataData()
-                                //updateFilterCombobox();
-                            }
-                        }
-                    }
-
-                    Label {
-                        id: labelAttributeSelect
-                        text: qsTr("Attribute Select")
-                        font.pixelSize: 20
-                        horizontalAlignment: Text.AlignHCenter
-                        font.bold: true
-                        width: parent.width
-                        height: 60
-                        padding: 20
-                        background: Rectangle {
-                            color: "#b1b3b5"
-                        }
-                    }
-
-                    Column {
-                        width: parent.width
-                        height: 200
-                        Repeater {
-                            id: repeaterCountSlectValue
-                            model: 1
-                            ComboBox {
-                                model: []
-                                property string displayTitle: "";
-                                property string actualRole: ""
-                                width: parent.width - 20
-                                height: 60
-                                x: 10;
-                                font.pixelSize: 12
-                                popup.font.pixelSize: 12
-                                popup.width: 200
-                                popup.contentWidth: 200
-                                displayText: displayTitle + ":" + currentText
-                                onActivated: updateFilterCombobox()
+                                updateFilterCombobox();
                             }
                         }
                     }
                 }
+
+            }
+
+        }
+
+        Rectangle {
+            // 属性选择区域
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            color: background_color_0
+            width: parent.width
+            height: parent.height - dateSelectArea.height
+
+
+            Column {
+                width: parent.width - 2
+                height: parent.height
+
+                Rectangle {
+                    width: parent.width
+                    height: dateSelectArea.height * 3 / 10
+                    color: background_color_0
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.topMargin: 1
+                        anchors.left: parent.left
+                        anchors.leftMargin: 1
+                        width: parent.width
+                        height: default_height_label_0
+                        color: background_color_1
+                        Text {
+                            id: labelAttributeSelect
+                            anchors.fill: parent
+                            text: qsTr("Attribute Select")
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: text_color
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+                }
+
+                Column {
+                    width: parent.width
+                    height: parent.height - dateSelectArea.height * 3 / 10
+                    spacing: 10
+
+                    Repeater {
+                        id: repeaterCountSlectValue
+                        model: 0
+
+                        ComboBox {
+                            anchors.left: parent.left
+                            anchors.leftMargin: 20
+                            width: parent.width - 2*anchors.leftMargin
+                            height: default_height_label_1
+                            font.pixelSize: 12
+                            model: ['none']
+                            property var displayTitle: '';
+                            property var actualRole: ''
+                            popup.font.pixelSize: 10
+                            popup.width: width
+                            popup.contentWidth: width
+                            contentItem: Text {
+                                text: displayTitle + ": " + actualRole
+                                color: text_color
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                            background: Rectangle {
+                                color: background_color_2
+                            }
+                            onActivated:  updateFilterCombobox()
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    Rectangle {
+        // 主显示区
+        z: 1
+        anchors.top: parent.top
+        anchors.topMargin: 2
+        anchors.right: parent.right
+        anchors.rightMargin: 4
+        color: background_color_0
+        width: parent.width - operateRectangle.width - anchors.rightMargin
+        height: parent.height
+
+        Rectangle {
+            id: tablearea
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.leftMargin: 1
+            width: parent.width
+            height: parent.height * 3 / 7
+            color: background_color_0
+            CustomedTableview {
+                id: tablelabel
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.leftMargin: 1
+                width: parent.width
+                height: parent.height
+                cellHandlerFlag: 1
+                function cellHandler(value_, row_, column_) {
+                    print("row_ = ", row_)
+                    print("column_ = ", column_)
+                    print("value_ = ", value_)
+                }
+                Component.onCompleted: {
+                    updataTableLabel()
+                }
             }
         }
+
+        Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: 1
+            anchors.topMargin: parent.height + parent.anchors.topMargin
+            width: parent.width
+            height: parent.height - tablearea.height
+            color: background_color_0
+            WebEngineView {
+                id: staticpieview
+                //anchors.centerIn: parent
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width - 80
+                height: parent.height - 20
+                visible: true
+                url: "file:///home/abaci/wjh/railway-catenary-detect/bin/html/pie_pictureDetected.html"
+                Component.onCompleted: {
+                    updataPieViewData()
+                }
+                onLoadingChanged: {
+                    if (staticpieview.loading == false) {
+                        updataPieViewData()
+                    }
+                }
+            }
+        }
+
     }
 
     Component.onCompleted: {
         //updataData()
+        updateFilterCombobox()
     }
 
     function updataData()
@@ -255,15 +352,16 @@ Page {
         StatisticController.updateData();
 
         updataTableLabel()
-        updataPieViewPictureDectected()
+        updataPieViewData()
 
     }
 
     function updataTableLabel()
     {
-        //print(TableLabelModel.data(0,3));
-        //tablelabel.initColumns(TableLabelModel);
-        //tablelabel.initColumns([{role:"0",width:"100",title:"0"},{role:"1",width:"100",title:"1"},{role:"2",width:"100",title:"2"}])
+        if (hasInitTableLabel == 0) {
+            initTableLabelHeaderColumns();
+        }
+
         tablelabel.model = TableLabelModel
 
         var column0 = tablelabel.getColumn(0);
@@ -274,47 +372,53 @@ Page {
 
     function initTableLabelHeaderColumns()
     {
-        var headerColumns = StatisticController.getTableLabelHeader()
-        print("headerColumns = ", headerColumns)
+        var titles = StatisticController.getTableLabelHeaderTitle()
+
+        var roles = StatisticController.getTableLabelHeaderRole()
         var labelHeader = []
-        for (var col_i = 0; col_i < headerColumns.length; col_i++)
+        for (var col_i = 0; col_i < titles.length; col_i++)
         {
             labelHeader.push({
-                             role: String(headerColumns[col_i]),
+                             role: String(roles[col_i]),
                              width: "100",
-                             title: String(headerColumns[col_i])
+                             title: String(titles[col_i])
                              })
+            hasInitTableLabel = 1
         }
         tablelabel.initColumns(labelHeader);
     }
 
-    function updataPieViewPictureDectected()
+    function updataPieViewData()
     {
-        var pictureDetectedInfo = StatisticController.getPictureDetectedInfo();
+        var info = StatisticController.getPieViewInfo();
         var command = "setData('"
-                + pictureDetectedInfo[0] + "','"
-                + pictureDetectedInfo[1] + "','"
+                + info[0] + "','"
+//                + 15 + "','"
+//                + 101 + "','"
+                + info[1] + "','"
                 + "')";
-        pieviewpicturedetectedstatic.runJavaScript(command, function callback(){});
+        staticpieview.runJavaScript(command, function callback(){});
 
         command = "resetSize("
-                + String(pieviewpicturedetectedstatic.width) + ","
-                + String(pieviewpicturedetectedstatic.height)
+                + String(staticpieview.width) + ","
+                + String(staticpieview.height)
                 + ");";
-        pieviewpicturedetectedstatic.runJavaScript(command, function callback(){});
+        staticpieview.runJavaScript(command, function callback(){});
     }
 
     function updateFilterCombobox() {
-        var filterObj = StatisticController.getNameValuesForTimeFilter();
-        repeaterCountSlectValue.model = Object.keys(filterObj).length
-        var i = 0;
-        for (var key in filterObj) {
-            var fieldObj = filterObj[key];
-            repeaterCountSlectValue.itemAt(i).displayTitle = fieldObj["title"];
-            repeaterCountSlectValue.itemAt(i).actualRole = fieldObj["role"]
-            repeaterCountSlectValue.itemAt(i).model = fieldObj["values"];
-            ++i;
+        var filterObj = StatisticController.getAttributeFilterData();
+        if (Object.keys(filterObj).length > 0 || old_filter_combo_number !== Object.keys(filterObj).length ) {
+            old_filter_combo_number = Object.keys(filterObj).length
+            repeaterCountSlectValue.model = Object.keys(filterObj).length
+            var i = 0;
+            for (var key in filterObj) {
+                var fieldObj = filterObj[key];
+                repeaterCountSlectValue.itemAt(i).displayTitle = fieldObj["title"]
+                repeaterCountSlectValue.itemAt(i).actualRole = fieldObj["role"]
+                repeaterCountSlectValue.itemAt(i).model = fieldObj["values"]
+                ++i;
+            }
         }
     }
-
 }

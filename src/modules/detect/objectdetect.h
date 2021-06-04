@@ -27,7 +27,7 @@ signals:
      *                                          x2:float //0-1
      *                                          y1:float //0-1
      *                                          y2:float //0-1
-     *
+     *                                          polygon:[[x1, y1],[x2, y2],...,[xn,yn]]:float //0-1
      *                                      }
      *                                  ]
      *                              }

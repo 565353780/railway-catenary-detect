@@ -27,6 +27,10 @@ public:
 
     void loadConfig(QString filename);
 
+    void loadConfig(QString filename, QString tablename);
+
+    void set_standard_4c2c(QString name);
+
 public:
 
     Q_INVOKABLE void updateData();
@@ -36,15 +40,17 @@ public:
                                       QString endDate);
 
     /**
-     *@return [picture_undetected_num_, picture_detected_num_]
+     *@return [pie_view_badnum_, pie_view_oknum_]
      */
-    Q_INVOKABLE QList<int>                getPictureDetectedInfo();
+    Q_INVOKABLE QList<int>                getPieViewInfo();
 
     Q_INVOKABLE SqlRecordCountTableModel* getTableLabelData();
 
-    Q_INVOKABLE QJsonObject               getNameValuesForTimeFilter() const;
+    Q_INVOKABLE QJsonObject               getAttributeFilterData() const;
 
-    Q_INVOKABLE QVariantList              getTableLabelHeader();
+    Q_INVOKABLE QVariantList              getTableLabelHeaderTitle();
+
+    Q_INVOKABLE QVariantList              getTableLabelHeaderRole();
 
 private:
 
@@ -54,15 +60,21 @@ private:
 
     void updateTableLabelData();
 
-    void updatePiePictureDetectedData();
+    void updatePieViewData();
+
+    void updateAttributeFilterData();
 
 private:
 
     RailwayCatenaryDataManager *database_manager_ = nullptr;
     SqlRecordCountTableModel *table_model_label_ = nullptr;
-    int picture_detected_num_;
-    int picture_undetected_num_;
-    QVariantList table_label_header_;
+    int pie_view_oknum_;
+    int pie_view_badnum_;
+    QVariantList table_label_header_title_; // 显示内容
+    QVariantList table_label_header_role_;
+
+    QString standard_4c2c_ = "2C";
+    int label_title_num_ = 0;
 
     QString user_attribute_filter_;
     QString user_begin_date_;
@@ -71,7 +83,10 @@ private:
     QJsonObject user_attribute_filter_obj_;
 
     QJsonObject statistics_filter_field_;
+    QJsonObject statistics_label_dict_;
     QSqlDatabase *database_ = nullptr;
+
+    QJsonObject attribute_filter_jsonobj_;
 
 signals:
 

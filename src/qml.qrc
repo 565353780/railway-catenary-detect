@@ -21,5 +21,16 @@
         <file>UI/html/countWebView_AI.html</file>
         <file>UI/html/echarts.js</file>
         <file>railway-catenary-detect.qm</file>
+        <file>UI/resource/star_background.png</file>
+        <file>UI/RectBackground0.qml</file>
+        <file>UI/html/pie_pictureDetected.html</file>
+        <file>UI/resource/left_01.png</file>
+        <file>UI/resource/left_02.png</file>
+        <file>UI/resource/left_11.png</file>
+        <file>UI/resource/left_12.png</file>
+        <file>UI/resource/right_01.png</file>
+        <file>UI/resource/right_02.png</file>
+        <file>UI/resource/right_11.png</file>
+        <file>UI/resource/right_12.png</file>
     </qresource>
 </RCC>
